@@ -6,7 +6,8 @@
   "tasks": {
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "env": ["DB_CONNECTION"]
     },
     "build": {
       "dependsOn": [

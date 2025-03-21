@@ -7,14 +7,15 @@
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": false,
     "incremental": true,
-    "module": "commonjs",
-    "moduleResolution": "Node10",
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
     "noFallthroughCasesInSwitch": false,
     "noImplicitAny": false,
     "removeComments": true,
     "skipLibCheck": true,
     "sourceMap": true,
-    "strictNullChecks": false,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": false,
     "strictBindCallApply": false
   }
 }

@@ -34,7 +34,8 @@
     }
   },
   "dependencies": {
-    "@nestjs/mapped-types": "*"
+    "@nestjs/mapped-types": "*",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@repo/eslint-config": "*",

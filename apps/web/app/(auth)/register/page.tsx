@@ -1,9 +1,8 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Link } from 'next-view-transitions';
+import { Link, useTransitionRouter } from 'next-view-transitions';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Form,
@@ -16,19 +15,15 @@ import {
 import { AlertTitle, AlertDescription, Alert } from '@/components/ui/alert';
 import { toast } from 'sonner';
 import { PasswordInput } from '@/components/ui/password-input';
-import { LoginSchema } from '@/app/(auth)/common';
 import { useState } from 'react';
 import LoadingSpinner from '@/components/ui/loading-spinner';
-
-const RegisterSchema = LoginSchema.extend({
-  name: z.string().min(3, 'Name must be at least 3 characters'),
-});
+import { RegisterSchema, type RegisterSchemaType } from '@repo/api';
 
 export default function RegisterForm() {
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const form = useForm<z.infer<typeof RegisterSchema>>({
+  const [loading, setLoading] = useState(false);
+  const router = useTransitionRouter();
+  const form = useForm<RegisterSchemaType>({
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
       name: '',
@@ -37,35 +32,23 @@ export default function RegisterForm() {
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof RegisterSchema>) => {
+  const onSubmit = async (data: RegisterSchemaType) => {
     setLoading(true);
     setError('');
     try {
-      const res = await new Promise((resolve, reject) =>
-        setTimeout(() => {
-          if (Math.random() < 0.5) {
-            reject('Error');
-          } else {
-            resolve('Success');
-          }
-        }, 5 * 1000),
-      );
-      if (res === 'Success') {
-        toast.success('You submitted the following values successfully.:', {
-          description: (
-            <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-              <code className="text-white">
-                {JSON.stringify(data, null, 2)}
-              </code>
-            </pre>
-          ),
-        });
-      }
-      if (res !== 'Success') {
-        setError('Error Signing you in');
-      }
+      const response = await fetch('http://localhost:3000/user/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+      console.log('result', result);
+      toast.success('Signed Up Successfully!');
+      router.push(`/login?email=${result?.email}`);
     } catch (error) {
-      setError('Error Signing you in');
+      setError('Error Signing you up');
     } finally {
       form.setValue('password', '');
       setLoading(false);

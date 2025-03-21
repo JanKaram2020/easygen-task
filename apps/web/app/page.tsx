@@ -27,20 +27,10 @@ export default function Home() {
           </Button>
         ) : (
           <div className="flex gap-4 items-center justify-center flex-col sm:flex-row w-full">
-            <Button
-              asChild
-              variant={'default'}
-              size={'xl'}
-              className={'w-24 rounded-full'}
-            >
+            <Button asChild variant={'default'} size={'xl'} className={'w-40'}>
               <Link href={'/login'}>Login</Link>
             </Button>
-            <Button
-              asChild
-              variant={'outline'}
-              size={'xl'}
-              className={'w-24 rounded-full'}
-            >
+            <Button asChild variant={'outline'} size={'xl'} className={'w-40'}>
               <Link href={'/register'}>Register</Link>
             </Button>
           </div>

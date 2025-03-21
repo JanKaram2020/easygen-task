@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Link } from 'next-view-transitions';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Form,
@@ -15,23 +14,23 @@ import {
 } from '@/components/ui/form';
 import { toast } from 'sonner';
 import { PasswordInput } from '@/components/ui/password-input';
-import { LoginSchema } from '@/app/(auth)/common';
+import { LoginSchema, type LoginSchemaType } from '@repo/api';
 import { useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 
 export default function LoginForm() {
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
 
-  const form = useForm<z.infer<typeof LoginSchema>>({
+  const form = useForm<LoginSchemaType>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
       email: '',
       password: '',
     },
   });
-  const onSubmit = async (data: z.infer<typeof LoginSchema>) => {
+  const onSubmit = async (data: LoginSchemaType) => {
     setLoading(true);
     setError('');
     try {

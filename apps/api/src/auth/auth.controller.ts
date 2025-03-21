@@ -3,13 +3,17 @@ import {
   Body,
   ConflictException,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Logger,
   Post,
+  UseGuards,
+  Request,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginSchema, RegisterSchema } from '@repo/api';
+import { AuthGuard } from './guards/auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -58,5 +62,11 @@ export class AuthController {
       this.logger.error('Something went wrong in signup:', e);
       throw e;
     }
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('me')
+  getUserInfo(@Request() request) {
+    return request.user;
   }
 }

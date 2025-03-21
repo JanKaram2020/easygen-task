@@ -61,6 +61,7 @@ export default function LoginForm() {
       const result = await response.json();
       if (result.accessToken) {
         toast.success('Logged in Successfully!');
+        localStorage.setItem('token', result.accessToken);
         router.push(`/`);
         return;
       }

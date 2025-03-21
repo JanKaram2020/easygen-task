@@ -7,7 +7,7 @@
     "dev": {
       "cache": false,
       "persistent": true,
-      "env": ["DB_CONNECTION"]
+      "env": ["DB_CONNECTION", "JWT_SECRET"]
     },
     "build": {
       "dependsOn": [

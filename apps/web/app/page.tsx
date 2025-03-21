@@ -1,9 +1,38 @@
+'use client';
 import Image from 'next/image';
 import { Link } from 'next-view-transitions';
 import { Button } from '@/components/ui/button';
-import { loggedIn } from '@/lib/constants';
+import { useEffect, useState } from 'react';
+import LoadingSpinner from '@/components/ui/loading-spinner';
 
 export default function Home() {
+  const [user, setUser] = useState<
+    | undefined
+    | {
+        name: string;
+      }
+  >(undefined);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (token && typeof token === 'string') {
+          const response = await fetch('http://localhost:3000/auth/me', {
+            headers: {
+              'Content-Type': 'application/json',
+              authorization: `Bearer ${token}`,
+            },
+          });
+          const result = await response.json();
+          setUser(result);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start justify-center md:shadow-xl md:rounded-3xl md:p-10">
@@ -15,13 +44,21 @@ export default function Home() {
           priority
         />
         <h2 className={'text-center w-full text-xl md:text-2xl'}>
-          Welcome to the application.
+          {`Welcome to the application${user ? ', ' + user.name : ''}.`}
         </h2>
-        {loggedIn ? (
+        {loading ? (
+          <div className={'w-full flex items-center justify-center min-w-52'}>
+            <LoadingSpinner loading={loading} />
+          </div>
+        ) : user ? (
           <Button
             variant={'secondary'}
             size={'xl'}
             className={'w-full rounded-full'}
+            onClick={() => {
+              setUser(undefined);
+              localStorage.removeItem('token');
+            }}
           >
             Logout
           </Button>

@@ -2,11 +2,15 @@ import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { LoginSchemaType, RegisterSchemaType } from '@repo/api';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
   logger: Logger;
-  constructor(private userService: UserService) {
+  constructor(
+    private userService: UserService,
+    private jwtService: JwtService,
+  ) {
     this.logger = new Logger(AuthService.name);
   }
 
@@ -20,12 +24,21 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException();
     }
-    const { name, email } = user;
+    const accessToken = await this.generateToken(user);
     return {
-      name,
-      email,
-      accessToken: 'placeholder-token',
+      ...user,
+      accessToken,
     };
+  }
+
+  async generateToken(
+    userData: NonNullable<Awaited<ReturnType<typeof this.validateUser>>>,
+  ) {
+    const { email, name } = userData;
+    return await this.jwtService.signAsync({
+      email,
+      name,
+    });
   }
 
   async validateUser(userData: LoginSchemaType) {

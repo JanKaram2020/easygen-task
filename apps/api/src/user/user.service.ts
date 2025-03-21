@@ -12,10 +12,10 @@ export class UserService {
     this.logger = new Logger(UserService.name);
   }
 
-  async findOne(email: string) {
-    this.logger.log('Finding user wih email ', email);
+  async findByEmail(email: string) {
+    this.logger.log('Finding user wih email: ', email);
     const user = await this.userModel.findOne({ email }).select('+password');
-    this.logger.log('user wih email', email, user);
+    this.logger.log('Found user wih email: ', email, user);
     return user;
   }
 

@@ -15,21 +15,32 @@ import {
 import { toast } from 'sonner';
 import { PasswordInput } from '@/components/ui/password-input';
 import { LoginSchema, type LoginSchemaType } from '@repo/api';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import LoadingSpinner from '@/components/ui/loading-spinner';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 export default function LoginForm() {
+  const searchParams = useSearchParams();
+  const emailInitialValue = searchParams.get('email');
+  const router = useRouter();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (emailInitialValue) {
+      router.replace('/login');
+    }
+  }, []);
 
   const form = useForm<LoginSchemaType>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
-      email: '',
+      email: emailInitialValue ?? '',
       password: '',
     },
   });
+
   const onSubmit = async (data: LoginSchemaType) => {
     setLoading(true);
     setError('');

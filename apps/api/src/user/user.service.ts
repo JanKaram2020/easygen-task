@@ -12,6 +12,13 @@ export class UserService {
     this.logger = new Logger(UserService.name);
   }
 
+  async findOne(email: string) {
+    this.logger.log('Finding user wih email ', email);
+    const user = await this.userModel.findOne({ email }).select('+password');
+    this.logger.log('user wih email', email, user);
+    return user;
+  }
+
   async create(user: RegisterSchemaType) {
     this.logger.log('Creating user.');
     const hashedPassword = await bcrypt.hash(user.password, 10);

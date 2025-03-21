@@ -4,6 +4,7 @@ import {
   Logger,
   Body,
   BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterSchema } from '@repo/api';
@@ -23,6 +24,12 @@ export class UserController {
       throw new BadRequestException(validatedBody.error.format());
     }
     try {
+      const userExists = await this.userService.findOne(
+        validatedBody.data.email,
+      );
+      if (userExists) {
+        throw new ConflictException('User Already Exist');
+      }
       return await this.userService.create(validatedBody.data);
     } catch (e) {
       this.logger.error('Something went wrong in signup:', e);

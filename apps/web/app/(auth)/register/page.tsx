@@ -19,8 +19,22 @@ import { useState } from 'react';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import { RegisterSchema, type RegisterSchemaType } from '@repo/api';
 
+const ErrorMessages = {
+  default: 'Error Happened while registering. try again later.',
+  409: (
+    <p>
+      Email already exists. if it's yours{' '}
+      <Link href={'/login'} className={'underline underline-offset-4'}>
+        Login
+      </Link>
+    </p>
+  ),
+} as const;
+
 export default function RegisterForm() {
-  const [error, setError] = useState('');
+  const [error, setError] = useState<keyof typeof ErrorMessages | undefined>(
+    undefined,
+  );
   const [loading, setLoading] = useState(false);
   const router = useTransitionRouter();
   const form = useForm<RegisterSchemaType>({
@@ -34,7 +48,7 @@ export default function RegisterForm() {
 
   const onSubmit = async (data: RegisterSchemaType) => {
     setLoading(true);
-    setError('');
+    setError(undefined);
     try {
       const response = await fetch('http://localhost:3000/user/create', {
         method: 'POST',
@@ -44,11 +58,16 @@ export default function RegisterForm() {
         body: JSON.stringify(data),
       });
       const result = await response.json();
-      console.log('result', result);
+      if (result.statusCode === 409) {
+        setError(409);
+        form.setValue('password', '');
+        setLoading(false);
+        return;
+      }
       toast.success('Signed Up Successfully!');
       router.push(`/login?email=${result?.email}`);
-    } catch (error) {
-      setError('Error Signing you up');
+    } catch {
+      setError('default');
     } finally {
       form.setValue('password', '');
       setLoading(false);
@@ -61,8 +80,8 @@ export default function RegisterForm() {
         className={'flex flex-col gap-6'}
         onSubmit={form.handleSubmit(onSubmit)}
         onChange={() => {
-          if (error !== '') {
-            setError('');
+          if (error !== undefined) {
+            setError(undefined);
           }
         }}
       >
@@ -75,8 +94,8 @@ export default function RegisterForm() {
           </div>
           {error ? (
             <Alert variant="destructive" className={'mt-2'}>
-              <AlertTitle>Error Happened</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{ErrorMessages[error]}</AlertDescription>
             </Alert>
           ) : null}
           <div className="grid gap-6 mt-2">
@@ -129,7 +148,7 @@ export default function RegisterForm() {
                 type="button"
                 className="w-full"
                 onClick={() => {
-                  setError('');
+                  setError(undefined);
                   form.reset();
                 }}
               >

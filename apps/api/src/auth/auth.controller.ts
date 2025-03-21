@@ -9,7 +9,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RegisterSchema } from '@repo/api';
+import { LoginSchema, RegisterSchema } from '@repo/api';
 
 @Controller('auth')
 export class AuthController {
@@ -19,9 +19,25 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @Post('login')
+  async login(@Body() loginUserData: unknown) {
+    this.logger.log('loginUserData', loginUserData);
+    const validatedBody = LoginSchema.safeParse(loginUserData);
+    if (!validatedBody.success) {
+      throw new BadRequestException(validatedBody.error.format());
+    }
+    try {
+      return await this.authService.login(validatedBody.data);
+    } catch (e) {
+      this.logger.error('Something went wrong in signup:', e);
+      throw e;
+    }
+  }
+
+  @HttpCode(HttpStatus.OK)
   @Post('register')
   async register(@Body() createUserData: unknown) {
-    console.log('createUserData', createUserData);
+    this.logger.log('createUserData', createUserData);
     const validatedBody = RegisterSchema.safeParse(createUserData);
     if (!validatedBody.success) {
       throw new BadRequestException(validatedBody.error.format());

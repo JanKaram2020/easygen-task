@@ -20,11 +20,18 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import { useSearchParams, useRouter } from 'next/navigation';
 
+const ErrorMessages = {
+  default: 'Error Happened while registering. try again later.',
+  401: <p>Invalid Credentials. Email or password is incorrect. </p>,
+} as const;
+
 export default function LoginForm() {
   const searchParams = useSearchParams();
   const emailInitialValue = searchParams.get('email');
   const router = useRouter();
-  const [error, setError] = useState('');
+  const [error, setError] = useState<keyof typeof ErrorMessages | undefined>(
+    undefined,
+  );
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -40,36 +47,30 @@ export default function LoginForm() {
       password: '',
     },
   });
-
   const onSubmit = async (data: LoginSchemaType) => {
     setLoading(true);
-    setError('');
+    setError(undefined);
     try {
-      const res = await new Promise((resolve, reject) =>
-        setTimeout(() => {
-          if (Math.random() < 0.5) {
-            reject('Error');
-          } else {
-            resolve('Success');
-          }
-        }, 5 * 1000),
-      );
-      if (res === 'Success') {
-        toast.success('You submitted the following values successfully.:', {
-          description: (
-            <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-              <code className="text-white">
-                {JSON.stringify(data, null, 2)}
-              </code>
-            </pre>
-          ),
-        });
+      const response = await fetch('http://localhost:3000/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+      if (result.accessToken) {
+        toast.success('Logged in Successfully!');
+        router.push(`/`);
+        return;
       }
-      if (res !== 'Success') {
-        setError('Error Signing you in');
+      if (result.statusCode === 401) {
+        setError(401);
+        return;
       }
-    } catch (error) {
-      setError('Error Signing you in');
+      setError('default');
+    } catch {
+      setError('default');
     } finally {
       form.setValue('password', '');
       setLoading(false);
@@ -82,8 +83,8 @@ export default function LoginForm() {
         className={'flex flex-col gap-6'}
         onSubmit={form.handleSubmit(onSubmit)}
         onChange={() => {
-          if (error !== '') {
-            setError('');
+          if (error !== undefined) {
+            setError(undefined);
           }
         }}
       >
@@ -97,7 +98,7 @@ export default function LoginForm() {
           {error ? (
             <Alert variant="destructive" className={'mb-2'}>
               <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription>{ErrorMessages[error]}</AlertDescription>
             </Alert>
           ) : null}
           <div className="grid gap-6">

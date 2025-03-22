@@ -21,10 +21,11 @@
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/mongoose": "^11.0.2",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/swagger": "^11.0.7",
+    "@repo/api": "*",
     "bcrypt": "^5.1.1",
     "mongoose": "^8.12.1",
     "reflect-metadata": "^0.2.0",
-    "@repo/api": "*",
     "rxjs": "^7.8.1",
     "zod": "^3.24.2"
   },

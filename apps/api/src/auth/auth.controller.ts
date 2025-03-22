@@ -14,6 +14,8 @@ import {
 import { AuthService } from './auth.service';
 import { LoginSchema, RegisterSchema } from '@repo/api';
 import { AuthGuard } from './guards/auth.guard';
+import { LoginUserDto, RegisterUserDto } from './auth.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -24,7 +26,7 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Body() loginUserData: unknown) {
+  async login(@Body() loginUserData: LoginUserDto) {
     this.logger.log('loginUserData', loginUserData);
     const validatedBody = LoginSchema.safeParse(loginUserData);
     if (!validatedBody.success) {
@@ -40,7 +42,7 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('register')
-  async register(@Body() createUserData: unknown) {
+  async register(@Body() createUserData: RegisterUserDto) {
     this.logger.log('createUserData', createUserData);
     const validatedBody = RegisterSchema.safeParse(createUserData);
     if (!validatedBody.success) {
@@ -64,8 +66,9 @@ export class AuthController {
     }
   }
 
-  @UseGuards(AuthGuard)
   @Get('me')
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard)
   getUserInfo(@Request() request) {
     return request.user;
   }

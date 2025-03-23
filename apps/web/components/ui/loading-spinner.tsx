@@ -5,9 +5,7 @@ const LoadingSpinner = ({ loading }: { loading: boolean }) => {
     <div role="status">
       <svg
         aria-hidden="true"
-        className={`
-                      w-8 h-8 text-gray-200  ${loading ? 'animate-spin inline' : 'hidden'} dark:text-gray-600 fill-orange-500
-                    `}
+        className={`w-8 h-8 text-gray-200 dark:text-gray-600 fill-orange-500 ${loading ? 'animate-spin inline' : 'hidden'}`}
         viewBox="0 0 100 101"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

@@ -1,24 +1,28 @@
-export async function signUpApi(body: {
-  email: string;
-  password: string;
-  name: string;
-}) {
-  await new Promise((resolve) => setTimeout(resolve, 20 * 1000));
-  try {
-    const response = await fetch('/api/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    if (!response.ok) {
-      return { success: false, message: 'Signup failed' };
-    }
+export const post = async <R>(url: string, data: Object) => {
+  const response = await fetch('http://localhost:3000/' + url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  const result = await response.json();
+  return result as R;
+};
 
-    const data = await response.json();
-    return { success: true, data };
-  } catch {
-    return { success: false, message: 'Signup failed' };
-  }
-}
-
-export type SignupResponse = Awaited<ReturnType<typeof signUpApi>>;
+export const get = async <R>(
+  url: string,
+  { headers, ...opts }: RequestInit,
+) => {
+  const options: RequestInit = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      ...headers,
+    },
+    ...opts,
+  };
+  const response = await fetch('http://localhost:3000/' + url, options);
+  const result = await response.json();
+  return result as R;
+};

@@ -4,6 +4,7 @@ import { Link } from 'next-view-transitions';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import LoadingSpinner from '@/components/ui/loading-spinner';
+import { get } from '@/lib/api';
 
 export default function Home() {
   const [user, setUser] = useState<
@@ -13,32 +14,35 @@ export default function Home() {
       }
   >(undefined);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('token');
         if (token && typeof token === 'string') {
-          const response = await fetch('http://localhost:3000/auth/me', {
+          const result = await get<{ name: string }>('auth/me', {
             headers: {
-              'Content-Type': 'application/json',
               authorization: `Bearer ${token}`,
             },
           });
-          const result = await response.json();
           setUser(result);
         }
+      } catch {
+        setUser(undefined);
+        localStorage.removeItem('token');
       } finally {
         setLoading(false);
       }
     };
     fetchData();
   }, []);
+
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start justify-center md:shadow-xl md:rounded-3xl md:p-10">
         <Image
           src="/easy-gen.svg"
-          alt="Next.js logo"
+          alt="Easy Generator logo"
           width={400}
           height={38}
           priority
